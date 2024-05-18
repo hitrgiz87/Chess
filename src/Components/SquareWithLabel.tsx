@@ -30,18 +30,20 @@ interface SquareWithLabelProps {
   isEven: boolean;
   piece?: string;
   onClick: () => void;
+  
 }
 
 const pieceSize = 79;
 
-const SquareWithLabel: React.FC<SquareWithLabelProps> = ({ label, isEven, piece, onClick }) => {
+const SquareWithLabel: React.FC<SquareWithLabelProps> = ({ label, isEven, piece, onClick}) => {
   const backgroundColor = isEven ? 'rgb(216, 141, 66)' : 'rgb(173, 92, 0)';
+  
 
   return (
     <div className="square-container" onClick={onClick}>
       <div className="square" style={{ backgroundColor }}></div>
       <span className="index">{label}</span>
-      {piece && piecePositions[piece as Piece] && (
+      {piece && piece !== '' && piecePositions[piece as Piece] && (
         <div
           className="piece"
           style={{
