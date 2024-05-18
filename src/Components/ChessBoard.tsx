@@ -1,12 +1,19 @@
 'use client';
 import React from 'react';
 import SquareWithLabel from './SquareWithLabel';
-import { Chessboard } from 'react-chessboard';
+
+
+
+
  function ChessBoard() {
 
   const letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
   const numbers = ['1', '2', '3', '4', '5', '6', '7', '8'];
-  const pieces = ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'];
+  const whitePieces = ['wR', 'wN', 'wB', 'wQ', 'wK', 'wB', 'wN', 'wR'];
+  const blackPieces = ['bR', 'bN', 'bB', 'bQ', 'bK', 'bB', 'bN', 'bR'];
+
+
+
 
     const rows = [];
     for (let row = 0; row < 8; row++) {
@@ -15,19 +22,19 @@ import { Chessboard } from 'react-chessboard';
         let piece = '';
    
         if (row === 0) {
-        piece = pieces[col];
+        piece = whitePieces[col];
         
       }  
       else if (row === 1) {
-        piece = 'P';
+        piece = 'wP';
       }
       else if (row === 6) {
-        piece = 'P';
+        piece = 'bP';
       }
       else if (row === 7) {
-        piece = pieces[col];
+        piece = blackPieces[col];
       }
-
+       
           
           const index = letters[col] + numbers[row];
           const isEven = (row + col) % 2 === 0;
@@ -37,14 +44,25 @@ import { Chessboard } from 'react-chessboard';
           key={index} 
           label={index} 
           isEven={isEven}
-          pieces={piece}
+          piece={piece}
+          onClick={() => console.log(index)}
           />);
+
+          
         
         
       }
       rows.push(<div className="row" key={row}>{squares} </div>);
+
+ 
     }
   
+
+
+
+
+
+
     return (
       <div className="ChessBoard ">
         {rows}
