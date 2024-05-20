@@ -6,8 +6,12 @@ import ChessBoard from './Components/ChessBoard.tsx'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
 
+    <div className='boardContainer'>
 
-    <ChessBoard />
+        <ChessBoard />
+    
+    </div>
+    
 
 
     

@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useState } from 'react';
 import SquareWithLabel from './SquareWithLabel';
 
 const initialBoard = [
@@ -13,17 +13,41 @@ const initialBoard = [
   ['wR', 'wN', 'wB', 'wQ', 'wK', 'wB', 'wN', 'wR']
 ];
 
-
+type BoardType = any; 
 
  function ChessBoard() {
   const [selectedPiece, setSelectedPiece] = React.useState<{row:number, col: number} | null> (null);
   const [board, setBoard] = React.useState(initialBoard)
+  const [isWhiteTurn, setIsWhiteTurn] = useState(true)
+
+  const isClearPath = (fromRow: number, fromCol: number, toRow: number, toCol: number, board: BoardType): boolean => {
+    const rowStep = toRow > fromRow ? 1 : toRow < fromRow ? -1 : 0;
+    const colStep = toCol > fromCol ? 1 : toCol < fromCol ? -1 : 0;
+  
+    let currentRow = fromRow + rowStep;
+    let currentCol = fromCol + colStep;
+  
+    while (currentRow !== toRow || currentCol !== toCol) {
+      if (board[currentRow][currentCol] !== '') return false;
+      currentRow += rowStep;
+      currentCol += colStep;
+    }
+  
+    return true;
+  };
 
 
 
-  const isValidMove = (piece: string, fromRow: number, fromCol: number, toRow: number, toCol: number, board:string[][]):boolean => {
+
+  const isValidMove = (piece: string, fromRow: number, fromCol: number, toRow: number, toCol: number, board: BoardType): boolean => {
     const targetPiece = board[toRow][toCol];
     const isTargetOpponent = targetPiece && targetPiece[0] !== piece[0];
+
+    if (targetPiece && targetPiece[0]=== piece[0]){
+      return false;
+
+    }
+  
     switch (piece[1]) {
       case 'P': { // Pawn movement
         const direction = piece[0] === 'w' ? -1 : 1;
@@ -32,65 +56,73 @@ const initialBoard = [
         if (Math.abs(fromCol - toCol) === 1 && toRow === fromRow + direction && isTargetOpponent) return true;
         break;
       }
-      case 'R': { //Rook Movement
-        if (fromRow === toRow || fromCol === toCol ){
-          if (isClearPath(fromCol,fromRow,toCol,toRow,board)) return true
-        };
+      case 'R': { // Rook movement
+        if (fromRow === toRow || fromCol === toCol) {
+          if (isClearPath(fromRow, fromCol, toRow, toCol, board)) return true;
+        }
         break;
- 
-
-
       }
-     
-      
-      
-
-      
+      case 'N': { // Knight movement
+        if ((Math.abs(fromRow - toRow) === 2 && Math.abs(fromCol - toCol) === 1) ||
+            (Math.abs(fromRow - toRow) === 1 && Math.abs(fromCol - toCol) === 2)) {
+          return true;
+        }
+        break;
+      }
+      case 'B': { // Bishop movement
+        if (Math.abs(fromRow - toRow) === Math.abs(fromCol - toCol)) {
+          if (isClearPath(fromRow, fromCol, toRow, toCol, board)) return true;
+        }
+        break;
+      }
+      case 'Q': { // Queen movement
+        if (fromRow === toRow || fromCol === toCol || Math.abs(fromRow - toRow) === Math.abs(fromCol - toCol)) {
+          if (isClearPath(fromRow, fromCol, toRow, toCol, board)) return true;
+        }
+        break;
+      }
+      case 'K': { // King movement
+        if (Math.abs(fromRow - toRow) <= 1 && Math.abs(fromCol - toCol) <= 1) {
+          return true;
+        }
+        break;
+      }
       default:
         break;
     }
-  return false
+    return false;
   };
   
-  const isClearPath = (fromRow: number, fromCol: number, toRow: number, toCol: number, board: BoardType): boolean => {
-    const rowStep = toRow > fromRow ? 1 : toRow < fromRow ? -1 : 0;
-    const colStep = toCol > fromCol ? 1 : toCol < fromCol ? -1 : 0;
-
-    let currentRow = fromRow + rowStep;
-    let currentCol = fromCol + colStep;
-
-    while (currentRow !== toRow || currentCol !== toCol) {
-      if (board[currentRow][currentCol] !== '') return false;
-      currentRow += rowStep;
-      currentCol += colStep;
-    }
-    return true;
-  };
+  
 
   const handleSquareClick = (row: number, col: number) => {
     if (selectedPiece) {
-     
-     const piece = board[selectedPiece.row][selectedPiece.col]
-     const targetPiece = board[row][col]
+      if (selectedPiece.row === row && selectedPiece.col === col) {
+        setSelectedPiece(null); // Deselecting the piece if the same square is clicked
+        return;
+      }
+      const piece = board[selectedPiece.row][selectedPiece.col];
+      
 
-      if(isValidMove(piece, selectedPiece.row,selectedPiece.col,row,col,board)){
-     // Move the piece
-     const newBoard = board.map((r, i) => r.map((c, j) => {
-        if (i === selectedPiece.row && j === selectedPiece.col) return '';
-        if (i === row && j === col) return board[selectedPiece.row][selectedPiece.col];
-        return c;
-      }));
-      setBoard(newBoard);
-    }
-      setSelectedPiece(null);
+      if (isValidMove(piece, selectedPiece.row, selectedPiece.col, row, col, board)) {
+        const newBoard = board.map((r, i) => r.map((c, j) => {
+          if (i === selectedPiece.row && j === selectedPiece.col) return '';
+          if (i === row && j === col) return piece;
+          return c;
+        }));
+ 
+        setBoard(newBoard);
+        setIsWhiteTurn(!isWhiteTurn);
+        setSelectedPiece(null); // Clear selection after move
+      } else {
+        setSelectedPiece(null); // Clear selection if move is invalid
+      }
     } else {
-      // Select the piece
-      if (board[row][col]) {
+      if (board[row][col] && ((isWhiteTurn && board[row][col][0] === 'w') || (!isWhiteTurn && board[row][col][0] === 'b'))) {
         setSelectedPiece({ row, col });
       }
     }
   };
-
 
 
   
@@ -116,15 +148,19 @@ const initialBoard = [
 
 
   return (
-    <div className="chessboard">
-      {board.map((row, rowIndex) => (
-        <div className="row" key={rowIndex}>
-          {row.map((col, colIndex) => renderSquare(rowIndex, colIndex))}
-        </div>
-      ))}
+   
+    <div className="board-container">
+      <div className="turn-indicator">
+        {isWhiteTurn ? "White's turn" : "Black's turn"}
+      </div>
+      <div className="chessboard">
+        {board.flatMap((row, rowIndex) => (
+          row.map((_, colIndex) => renderSquare(rowIndex, colIndex))
+        ))}
+      </div>
     </div>
   );
-}
+};
 
 export default ChessBoard;
 
