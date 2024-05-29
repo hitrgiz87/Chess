@@ -42,7 +42,7 @@
   justify-content: center;
   align-items: center;
   height: 100vh; /* Makes the container full height of the viewport */
-  background-color: #f0f0f0; /* Optional: Adds a background color for better visibility */
+  background-color: #ffffff; /* Optional: Adds a background color for better visibility */
 }
 
 .turn-indicator{

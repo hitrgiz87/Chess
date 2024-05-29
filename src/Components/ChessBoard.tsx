@@ -13,11 +13,24 @@ const initialBoard = [
   ['wR', 'wN', 'wB', 'wQ', 'wK', 'wB', 'wN', 'wR']
 ];
 
+const boardInCheck = [
+  ['bR', 'bN', 'bB', 'bQ', 'bK', 'bB', 'bN', 'bR'],
+  ['bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bP'],
+  ['', '', '', '', '', '', '', ''],
+  ['', '', '', 'wQ', '', '', '', ''],
+  ['', '', '', '', '', '', '', ''],
+  ['', '', '', '', '', '', '', ''],
+  ['wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wP'],
+  ['wR', 'wN', 'wB', '', 'wK', 'wB', 'wN', 'wR']
+];
+
+
+
 type BoardType = any; 
 
  function ChessBoard() {
   const [selectedPiece, setSelectedPiece] = React.useState<{row:number, col: number} | null> (null);
-  const [board, setBoard] = React.useState(initialBoard)
+  const [board, setBoard] = React.useState(boardInCheck )
   const [isWhiteTurn, setIsWhiteTurn] = useState(true)
 
   const isClearPath = (fromRow: number, fromCol: number, toRow: number, toCol: number, board: BoardType): boolean => {
@@ -47,6 +60,8 @@ type BoardType = any;
       return false;
 
     }
+
+    if (targetPiece && targetPiece[1] === 'K'){
   
     switch (piece[1]) {
       case 'P': { // Pawn movement
@@ -123,9 +138,6 @@ type BoardType = any;
       }
     }
   };
-
-
-  
 
 
 
