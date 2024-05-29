@@ -61,7 +61,6 @@ type BoardType = any;
 
     }
 
-    if (targetPiece && targetPiece[1] === 'K'){
   
     switch (piece[1]) {
       case 'P': { // Pawn movement
