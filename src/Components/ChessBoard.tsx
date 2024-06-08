@@ -17,7 +17,7 @@ const boardInCheck = [
   ['bR', 'bN', 'bB', 'bQ', 'bK', 'bB', 'bN', 'bR'],
   ['bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bP'],
   ['', '', '', '', '', '', '', ''],
-  ['', '', '', 'wQ', '', '', '', ''],
+  ['', '', '', '', 'wQ', '', '', ''],
   ['', '', '', '', '', '', '', ''],
   ['', '', '', '', '', '', '', ''],
   ['wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wP'],
@@ -30,7 +30,7 @@ type BoardType = any;
 
  function ChessBoard() {
   const [selectedPiece, setSelectedPiece] = React.useState<{row:number, col: number} | null> (null);
-  const [board, setBoard] = React.useState(boardInCheck )
+  const [board, setBoard] = React.useState(boardInCheck)
   const [isWhiteTurn, setIsWhiteTurn] = useState(true)
 
   const isClearPath = (fromRow: number, fromCol: number, toRow: number, toCol: number, board: BoardType): boolean => {
@@ -49,18 +49,53 @@ type BoardType = any;
     return true;
   };
 
+  const isInCheck = (board: BoardType, isWhite: boolean): boolean => {
+    const king = isWhite ? 'wK' : 'bK';
+    const opponent = isWhite ? 'b' : 'w';
+  
+    // Find the king's position
+    let kingRow = -1;
+    let kingCol = -1;
+    for (let i = 0; i < 8; i++) {
+      for (let j = 0; j < 8; j++) {
+        if (board[i][j] === king) {
+          kingRow = i;
+          kingCol = j;
+          break;
+        }
+      }
+      if (kingRow !== -1) break;
+    }
+  
+    if (kingRow === -1 || kingCol === -1) return false;
+  
+    // Check if any opponent piece can attack the king
+    for (let i = 0; i < 8; i++) {
+      for (let j = 0; j < 8; j++) {
+        if (board[i][j] && board[i][j][0] === opponent) {
+          if (isValidMove(board[i][j], i, j, kingRow, kingCol, board, false)) {
+            console.log(`King is in check from piece at (${i}, ${j})`);
+            return true;
+          }
+        }
+      }
+    }
+  
+    return false;
+  };
 
 
-
-  const isValidMove = (piece: string, fromRow: number, fromCol: number, toRow: number, toCol: number, board: BoardType): boolean => {
+  const isValidMove = (piece: string, fromRow: number, fromCol: number, toRow: number, toCol: number, board: BoardType, checkCheck: boolean = true): boolean => {
     const targetPiece = board[toRow][toCol];
     const isTargetOpponent = targetPiece && targetPiece[0] !== piece[0];
-
-    if (targetPiece && targetPiece[0]=== piece[0]){
+  
+    if (targetPiece && targetPiece[0] === piece[0]) {
       return false;
-
     }
-
+  
+    if (checkCheck && isInCheck(board, piece[0] === 'w')) {
+      return false;
+    }
   
     switch (piece[1]) {
       case 'P': { // Pawn movement
