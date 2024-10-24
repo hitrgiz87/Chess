@@ -30,12 +30,13 @@ interface SquareWithLabelProps {
   isEven: boolean;
   piece?: string;
   onClick: () => void;
+  isCheckmate?: boolean;
   
 }
 
 const pieceSize = 79;
 
-const SquareWithLabel: React.FC<SquareWithLabelProps> = ({ label, isEven, piece, onClick}) => {
+const SquareWithLabel: React.FC<SquareWithLabelProps> = ({ label, isEven, piece, onClick, isCheckmate}) => {
   const backgroundColor = isEven ? 'rgb(216, 141, 66)' : 'rgb(173, 92, 0)';
   
 
@@ -54,6 +55,11 @@ const SquareWithLabel: React.FC<SquareWithLabelProps> = ({ label, isEven, piece,
             backgroundSize: `${pieceSize * 6}px ${pieceSize * 2}px`,
           }}
         />
+      )}
+      {isCheckmate && (
+        <div className="checkmate-message">
+          Checkmate!
+        </div>
       )}
     </div>
   );
