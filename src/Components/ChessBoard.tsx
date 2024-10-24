@@ -32,6 +32,7 @@ type BoardType = any;
   const [selectedPiece, setSelectedPiece] = React.useState<{row:number, col: number} | null> (null);
   const [board, setBoard] = React.useState(boardInCheck)
   const [isWhiteTurn, setIsWhiteTurn] = useState(true)
+  const [isCheckmate, setIsCheckmate] = useState(false);
 
   const isClearPath = (fromRow: number, fromCol: number, toRow: number, toCol: number, board: BoardType): boolean => {
     const rowStep = toRow > fromRow ? 1 : toRow < fromRow ? -1 : 0;
@@ -84,6 +85,52 @@ type BoardType = any;
     return false;
   };
 
+  const isCheckmate = (board: BoardType, isWhite: boolean): boolean => {
+    if (!isInCheck(board, isWhite)) return false;
+  
+    const king = isWhite ? 'wK' : 'bK';
+    const opponent = isWhite ? 'b' : 'w';
+  
+    // Find the king's position
+    let kingRow = -1;
+    let kingCol = -1;
+    for (let i = 0; i < 8; i++) {
+      for (let j = 0; j < 8; j++) {
+        if (board[i][j] === king) {
+          kingRow = i;
+          kingCol = j;
+          break;
+        }
+      }
+      if (kingRow !== -1) break;
+    }
+  
+    if (kingRow === -1 || kingCol === -1) return false;
+  
+    // Check if the king can move to any adjacent square
+    const directions = [
+      [-1, -1], [-1, 0], [-1, 1],
+      [0, -1],         [0, 1],
+      [1, -1], [1, 0], [1, 1]
+    ];
+  
+    for (const [dx, dy] of directions) {
+      const newRow = kingRow + dx;
+      const newCol = kingCol + dy;
+      if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
+        if (board[newRow][newCol] === '' || board[newRow][newCol][0] === opponent) {
+          const newBoard = board.map((r, i) => r.map((c, j) => {
+            if (i === kingRow && j === kingCol) return '';
+            if (i === newRow && j === newCol) return king;
+            return c;
+          }));
+          if (!isInCheck(newBoard, isWhite)) return false;
+        }
+      }
+    }
+  
+    return true;
+  };
 
   const isValidMove = (piece: string, fromRow: number, fromCol: number, toRow: number, toCol: number, board: BoardType, checkCheck: boolean = true): boolean => {
     const targetPiece = board[toRow][toCol];
@@ -163,6 +210,11 @@ type BoardType = any;
         setBoard(newBoard);
         setIsWhiteTurn(!isWhiteTurn);
         setSelectedPiece(null); // Clear selection after move
+
+        if (isCheckmate(newBoard, !isWhiteTurn)) {
+          setIsCheckmate(true);
+          alert(`${isWhiteTurn ? "Black" : "White"} wins by checkmate!`);
+        }
       } else {
         setSelectedPiece(null); // Clear selection if move is invalid
       }
